@@ -26,14 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
     revealEls.forEach((el) => el.classList.add("in-view"));
   }
 
-  // Video track: seamless loop via JS (avoids CSS animation glitch)
-  const videoTrack = document.getElementById("video-track");
-  const videoWrapper = videoTrack && videoTrack.closest(".video-slider-wrapper");
-  if (videoTrack && videoWrapper) {
+  // Video tracks: seamless loop via JS (avoids CSS animation glitch)
+  document.querySelectorAll(".video-track").forEach((videoTrack) => {
+    const videoWrapper = videoTrack.closest(".video-slider-wrapper");
+    if (!videoWrapper) return;
+
     const speedPxPerSec = 80;
     let position = 0;
     let setWidth = 0;
-    let rafId = null;
     let paused = false;
 
     function measure() {
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (position >= setWidth) position -= setWidth;
         videoTrack.style.transform = `translate3d(${-position}px, 0, 0)`;
       }
-      rafId = requestAnimationFrame(tick);
+      requestAnimationFrame(tick);
     }
 
     videoWrapper.addEventListener("mouseenter", () => { paused = true; });
@@ -55,9 +55,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (measure()) {
       videoTrack.classList.add("js-marquee");
-      rafId = requestAnimationFrame(tick);
+      requestAnimationFrame(tick);
     }
     window.addEventListener("resize", () => { measure(); });
+  });
+
+  // Click-to-load video embeds (thumbnail swapped for a live iframe on demand)
+  function playVideo(el) {
+    const provider = el.dataset.provider;
+    const id = el.dataset.id;
+    const src =
+      provider === "youtube"
+        ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`
+        : `https://player.vimeo.com/video/${id}?autoplay=1`;
+    const iframe = document.createElement("iframe");
+    iframe.src = src;
+    iframe.frameBorder = "0";
+    iframe.allow = "autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share";
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    el.replaceWith(iframe);
   }
+
+  document.querySelectorAll(".video-lite").forEach((el) => {
+    el.addEventListener("click", () => playVideo(el), { once: true });
+    el.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          playVideo(el);
+        }
+      },
+      { once: true }
+    );
+  });
 });
 

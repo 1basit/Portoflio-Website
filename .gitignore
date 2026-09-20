@@ -1,0 +1,18 @@
+# Vercel CLI link + the OIDC token it writes
+.vercel
+.env*
+
+# macOS
+.DS_Store
+
+# Regenerable debug frames from the brag composition
+brag-output/composition/snapshots/
+
+# Full-quality showreel master (21MB). The web build that the site actually
+# loads is assets/video/showreel.mp4 at ~770KB.
+portfolio video.mp4
+
+# Duplicate of brag-output/composition/assets — see that composition's copy.
+# Restore with: cp -R ../composition/assets ./assets
+brag-output/composition-landscape/assets/
+brag-output/composition-landscape/snapshots/

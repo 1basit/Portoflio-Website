@@ -7,3 +7,7 @@
 
 # Regenerable debug frames from the brag composition
 brag-output/composition/snapshots/
+
+# Full-quality showreel master (21MB). The web build that the site actually
+# loads is assets/video/showreel.mp4 at ~770KB.
+portfolio video.mp4

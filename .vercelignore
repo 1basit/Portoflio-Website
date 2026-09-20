@@ -1,0 +1,6 @@
+# The site only needs the page and assets/. Everything below is working
+# material for the launch video and would otherwise be served publicly at
+# basitportfoliowebsite.vercel.app/... for no reason.
+brag-output/
+portfolio video.mp4
+.git

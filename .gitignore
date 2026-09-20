@@ -1,0 +1,9 @@
+# Vercel CLI link + the OIDC token it writes
+.vercel
+.env*
+
+# macOS
+.DS_Store
+
+# Regenerable debug frames from the brag composition
+brag-output/composition/snapshots/

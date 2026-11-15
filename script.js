@@ -64,6 +64,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function playVideo(el) {
     const provider = el.dataset.provider;
     const id = el.dataset.id;
+
+    // Self-hosted clips swap in a real <video> rather than an embed, so they
+    // cost nothing until clicked and carry native controls for fullscreen.
+    if (provider === "file") {
+      const video = document.createElement("video");
+      video.src = el.dataset.src;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.preload = "auto";
+      el.replaceWith(video);
+      return;
+    }
+
     const src =
       provider === "youtube"
         ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`
@@ -75,6 +89,56 @@ document.addEventListener("DOMContentLoaded", () => {
     iframe.allowFullscreen = true;
     iframe.referrerPolicy = "strict-origin-when-cross-origin";
     el.replaceWith(iframe);
+  }
+
+  // Hero showreel: plays muted as the hero visual, sound is opt-in. Autoplay
+  // is skipped for visitors who prefer reduced motion, and playback pauses
+  // while the hero is scrolled out of view so it costs nothing to leave open.
+  const reel = document.getElementById("hero-reel-video");
+  const reelSound = document.getElementById("reel-sound");
+  if (reel && reelSound) {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const tryPlay = () => {
+      const started = reel.play();
+      // Autoplay can be refused; the poster stays up and the toggle still works.
+      if (started && typeof started.catch === "function") started.catch(() => {});
+    };
+
+    if (!reduceMotion) tryPlay();
+
+    function setSound(on) {
+      reel.muted = !on;
+      reelSound.classList.toggle("is-on", on);
+      reelSound.setAttribute("aria-label", on ? "Turn sound off" : "Turn sound on");
+      if (on && reel.paused) tryPlay();
+    }
+
+    reelSound.addEventListener("click", () => setSound(reel.muted));
+    reel.addEventListener("click", () => setSound(reel.muted));
+
+    // Browsers pause muted video in a backgrounded tab and do not resume it on
+    // return, so pick it back up when the page becomes visible again.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && reel.paused && !reduceMotion) {
+        tryPlay();
+      }
+    });
+
+    if ("IntersectionObserver" in window && !reduceMotion) {
+      const reelObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              tryPlay();
+            } else if (!reel.paused) {
+              reel.pause();
+            }
+          });
+        },
+        { threshold: 0.2 }
+      );
+      reelObserver.observe(reel);
+    }
   }
 
   document.querySelectorAll(".video-lite").forEach((el) => {

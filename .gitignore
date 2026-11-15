@@ -16,3 +16,8 @@ portfolio video.mp4
 # Restore with: cp -R ../composition/assets ./assets
 brag-output/composition-landscape/assets/
 brag-output/composition-landscape/snapshots/
+
+# Raw master dropped in the repo root. Leading slash anchors it to the root:
+# unanchored it also matches assets/video/intro.mp4, because git's ignore
+# matching is case-insensitive on macOS.
+/Intro.mp4

@@ -64,6 +64,20 @@ document.addEventListener("DOMContentLoaded", () => {
   function playVideo(el) {
     const provider = el.dataset.provider;
     const id = el.dataset.id;
+
+    // Self-hosted clips swap in a real <video> rather than an embed, so they
+    // cost nothing until clicked and carry native controls for fullscreen.
+    if (provider === "file") {
+      const video = document.createElement("video");
+      video.src = el.dataset.src;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.preload = "auto";
+      el.replaceWith(video);
+      return;
+    }
+
     const src =
       provider === "youtube"
         ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`
